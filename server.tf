@@ -26,7 +26,7 @@ resource "aws_security_group" "web" {
 resource "aws_instance" "web" {
   ami                    = data.aws_ami.al2023.id
   instance_type          = var.instance_type
-  subnet_id              = aws_subnet.public.id
+  subnet_id              = aws_subnet.net["public-a"].id
   vpc_security_group_ids = [aws_security_group.web.id]
   user_data              = <<-EOF
 #!/bin/bash
