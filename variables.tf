@@ -28,7 +28,7 @@ variable "subnets" {
     public-a  = { cidr_index = 1,  az = "a" }
     private-b = { cidr_index = 11, az = "b" }
     private-c = { cidr_index = 12, az = "c" }
-    private-d = { cidr_index = 13, az = "d" }
+    private-d = { cidr_index = 13, az = "c" }
   }
 }
 

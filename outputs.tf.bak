@@ -6,5 +6,5 @@ output "url" {
 }
 
 output "subnet_ids" {
-  value = { for k, s in aws_subnet.net : k => s.id }
+  value = module.network.subnet_ids
 }

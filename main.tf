@@ -1,15 +1,33 @@
 locals {
-  name_prefix = "${var.project}-${var.env}"
+  env         = terraform.workspace
+  name_prefix = "${var.project}-${local.env}"
+  
+  instance_type = {
+    dev  = "t3.micro"
+    prod = "t3.small"
+  }[terraform.workspace]
+
   common_tags = {
     Project   = var.project
-    Env       = var.env
+    Env       = local.env
     ManagedBy = "terraform"
   }
 }
 
-# main.tf
+provider "aws" {
+  region = "eu-central-1"
+}
+
 terraform {
   required_version = ">= 1.9"
+
+  cloud {
+    organization = "devops-veisa"
+    workspaces {
+      tags = ["shop"]
+    }
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -18,22 +36,12 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = "eu-central-1"
+module "network" {
+  source   = "./modules/network"
+  project  = var.project
+  env      = local.env
+  region   = var.region
+  vpc_cidr = var.vpc_cidr
+  subnets  = var.subnets
+  tags     = local.common_tags
 }
-
-resource "aws_s3_bucket" "assets" {
-  bucket = "tf-shop-assets-veisa-2026"
-  tags   = merge(local.common_tags, { Name = "${local.name_prefix}-assets" })
-}
-
-terraform {
-  backend "s3" {
-    bucket      = "tf-state-veisa-2026"
-    key         = "shop/terraform.tfstate" # шлях усередині бакета
-    region      = "eu-central-1"
-    encrypt     = true
-    use_lockfile = true                    # блокування засобами S3
-  }
-}
-
